@@ -81,7 +81,7 @@ public class RobotContainer
         () -> -driverXbox.getRawAxis(2));
 
     drivebase.setDefaultCommand(
-        !RobotBase.isSimulation() ? closedAbsoluteDriveAdv : driveFieldOrientedDirectAngleSim);
+        !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
         //driveFieldOrientedAnglularVelocity
         //driveFieldOrientedDirectAngle
         //closedAbsoluteDriveAdv
