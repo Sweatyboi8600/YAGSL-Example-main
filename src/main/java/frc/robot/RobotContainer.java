@@ -9,15 +9,36 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.swervedrive.ConveyDown;
+import frc.robot.commands.swervedrive.ConveyUp;
+import frc.robot.commands.swervedrive.ElevateDown;
+import frc.robot.commands.swervedrive.ElevateUp;
+import frc.robot.commands.swervedrive.Expel;
+import frc.robot.commands.swervedrive.Shoot;
+import frc.robot.commands.swervedrive.ShootLow;
+import frc.robot.commands.swervedrive.ShootMax;
+import frc.robot.commands.swervedrive.Shoveling;
+import frc.robot.commands.swervedrive.Vore;
+import frc.robot.commands.swervedrive.shovelDown;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.subsystems.swervedrive.Elevator;
+import frc.robot.subsystems.swervedrive.Intake;
+import frc.robot.subsystems.swervedrive.Shooter;
+import frc.robot.subsystems.swervedrive.Shovel;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.conveyer;
+
 import java.io.File;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -26,6 +47,18 @@ import java.io.File;
  */
 public class RobotContainer
 {
+   private final conveyer Conveyer = new conveyer();
+  private final Shooter shooter = new Shooter();
+    private final Intake intake = new Intake();
+    private final Shovel shovel = new Shovel();
+    private final Elevator elevator = new Elevator();
+Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on the Driver Station
+
+   public Trigger conveyUpTrigger, conveyDownTrigger, voreTrigger, expelTrigger, shootMaxTrigger, 
+   shootLow, ShovelingTrigger, ShovelDownTrigger, ElevateUpTrigger, ElevateDownTrigger,
+   ShootOverrideTrigger;  
+
+
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -82,6 +115,8 @@ public class RobotContainer
 
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
+          //shooter.setDefaultCommand(new Shoot(shooter, () -> js.getRawAxis(1)));
+
         //driveFieldOrientedAnglularVelocity
         //driveFieldOrientedDirectAngle
         //closedAbsoluteDriveAdv
@@ -106,6 +141,21 @@ public class RobotContainer
         Commands.deferredProxy(() -> drivebase.driveToPose(
                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                               ));
+    conveyUpTrigger = new JoystickButton(js, 11).whileTrue(new ConveyDown(Conveyer));
+    conveyDownTrigger = new JoystickButton(js, 7).whileTrue(new ConveyUp(Conveyer));
+    voreTrigger = new JoystickButton(js, 2).whileTrue(new Vore(intake));
+    expelTrigger = new JoystickButton(js, 8).whileTrue(new Expel(intake));
+    ShovelDownTrigger = new JoystickButton(js, 5).whileTrue(new Shoveling(shovel));
+    ShovelingTrigger = new JoystickButton(js, 7).whileTrue(new shovelDown(shovel));
+    ElevateUpTrigger = new JoystickButton(js, 10).whileTrue(new ElevateUp(elevator));
+    ElevateDownTrigger = new JoystickButton(js, 9).whileTrue(new ElevateDown(elevator));
+    shootLow = new JoystickButton(js, 12).whileTrue(new ShootLow(shooter));
+    shootMaxTrigger = new JoystickButton(js, 1).whileTrue(new ShootMax(shooter));
+    ShootOverrideTrigger =  new JoystickButton(js, 3).whileTrue(new Shoot(shooter, 
+     () -> js.getRawAxis(1), () -> js.getRawAxis(3)));
+   
+  
+
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
   }
 
@@ -114,10 +164,12 @@ public class RobotContainer
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand()
-  {
+  public Command getAutonomousCommand() {
+
+    return new PathPlannerAuto("New Auto");
+
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Auto");
+    //return drivebase.getAutonomousCommand("New Auto");
   }
 
   public void setDriveMode()
