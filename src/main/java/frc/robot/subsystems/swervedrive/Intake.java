@@ -13,6 +13,7 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   TalonSRX upIntake, downIntake;
+  double voltage;
   public Intake() {
     upIntake = new TalonSRX(15);
     downIntake = new TalonSRX(14);
@@ -20,6 +21,7 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    voltage  = voltage + upIntake.getMotorOutputVoltage();
     // This method will be called once per scheduler run
   }
   public void set(double speed){
@@ -28,5 +30,8 @@ public class Intake extends SubsystemBase {
 
     
 
+  }
+  public double getMotorOutputVoltage(){
+    return voltage;
   }
 }

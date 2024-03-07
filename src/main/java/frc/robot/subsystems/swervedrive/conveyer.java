@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class conveyer extends SubsystemBase {
   TalonSRX topConveryer, bottomConveyer; 
+  double voltage;
   /** Creates a new conveyer. */
   public conveyer() {
     topConveryer= new TalonSRX(16);
@@ -25,14 +26,19 @@ public class conveyer extends SubsystemBase {
 
   @Override
   public void periodic() {
+    voltage  = voltage + topConveryer.getMotorOutputVoltage();
     // This method will be called once per scheduler run
   }
-  public void conveyrSet (double speed)
+  public double getMotorOutputVoltage(){
+    return voltage;
+  }
+  public void set (double speed)
   {
     topConveryer.set(ControlMode.PercentOutput, -speed);
    // bottomConveyer.set(ControlMode.PercentOutput, -speed);
 
 
   }
+  
   
 }
