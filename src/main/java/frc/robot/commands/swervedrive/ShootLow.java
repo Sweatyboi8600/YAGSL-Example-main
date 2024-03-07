@@ -24,7 +24,7 @@ public class ShootLow extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.set(-.1);
+    shooter.set(-0.140205);
   }
 
   // Called once the command ends or is interrupted.

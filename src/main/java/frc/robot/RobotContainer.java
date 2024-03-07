@@ -237,7 +237,7 @@ Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on t
 
     //new ShootMax(shooter).until(() -> shooter.getaa)
 
-   return new PathPlannerAuto("topBlue");}
+   return new PathPlannerAuto("Test");}
   
     // An example command will be run in autonomous
     //return drivebase.getAutonomousCommand("New Auto");

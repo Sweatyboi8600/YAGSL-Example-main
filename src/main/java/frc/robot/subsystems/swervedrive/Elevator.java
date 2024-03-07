@@ -16,7 +16,7 @@ public class Elevator extends SubsystemBase {
   TalonSRX leftElevator, rihgtElevator;
   /** Creates a new Elevator. */
   public Elevator() {
-    leftElevator = new TalonSRX(20);
+    leftElevator = new TalonSRX(14);
         rihgtElevator = new TalonSRX(21);
         leftElevator.setInverted(true);
         leftElevator.setNeutralMode(NeutralMode.Brake);

@@ -23,7 +23,8 @@ public class ElevateUp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevator.set(0.3);
+    if (elevator.getDistance() <= 57  )
+    elevator.set(0.5);
   }
 
   // Called once the command ends or is interrupted.

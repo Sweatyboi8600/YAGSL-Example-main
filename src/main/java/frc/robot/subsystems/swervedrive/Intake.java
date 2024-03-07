@@ -16,7 +16,7 @@ public class Intake extends SubsystemBase {
   double voltage;
   public Intake() {
     upIntake = new TalonSRX(15);
-    downIntake = new TalonSRX(14);
+    downIntake = new TalonSRX(20);
   }
 
   @Override

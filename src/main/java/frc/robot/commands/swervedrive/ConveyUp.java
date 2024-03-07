@@ -25,12 +25,12 @@ public class ConveyUp extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() { 
-    Conveyer.conveyrSet(-1);  }
+    Conveyer.set(-1);  }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Conveyer.conveyrSet(0);
+    Conveyer.set(0);
   }
 
   // Returns true when the command should end.
