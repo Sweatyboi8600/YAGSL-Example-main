@@ -19,6 +19,7 @@ public class Shooter extends SubsystemBase {
     CANSparkMax shooterRight;
 
     CANSparkMax shooterLeft;
+    double voltage;
 
   public Shooter() {
    // shooter = new TalonSRX(6);
@@ -40,7 +41,11 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    voltage  = voltage + shooterLeft.getBusVoltage();
     // This method will be called once per scheduler run
+  }
+  public double getBusVoltage(){
+    return voltage;
   }
   public void set(double speed){
   shooterLeft.set(speed);

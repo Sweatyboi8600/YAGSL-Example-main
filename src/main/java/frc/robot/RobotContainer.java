@@ -11,13 +11,17 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+//import frc.robot.commands.IntakeAndConveyUp;
 import frc.robot.commands.swervedrive.ConveyDown;
+import frc.robot.commands.swervedrive.IntakeAndConveyUp;
 import frc.robot.commands.swervedrive.ConveyUp;
 import frc.robot.commands.swervedrive.ElevateDown;
 import frc.robot.commands.swervedrive.ElevateUp;
@@ -28,7 +32,9 @@ import frc.robot.commands.swervedrive.ShootMax;
 import frc.robot.commands.swervedrive.Shoveling;
 import frc.robot.commands.swervedrive.Vore;
 import frc.robot.commands.swervedrive.shovelDown;
+//import frc.robot.commands.swervedrive.auto.AutoIntake;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.commands.IntakeAndConveyDown;
 import frc.robot.subsystems.swervedrive.Elevator;
 import frc.robot.subsystems.swervedrive.Intake;
 import frc.robot.subsystems.swervedrive.Shooter;
@@ -38,6 +44,7 @@ import frc.robot.subsystems.swervedrive.conveyer;
 
 import java.io.File;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
@@ -52,11 +59,12 @@ public class RobotContainer
     private final Intake intake = new Intake();
     private final Shovel shovel = new Shovel();
     private final Elevator elevator = new Elevator();
+    //private ShootMax = new ShootMax(shooter).until(() -> shooter.getMotorOutputVoltage()>= (6));
 Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on the Driver Station
 
    public Trigger conveyUpTrigger, conveyDownTrigger, voreTrigger, expelTrigger, shootMaxTrigger, 
    shootLow, ShovelingTrigger, ShovelDownTrigger, ElevateUpTrigger, ElevateDownTrigger,
-   ShootOverrideTrigger;  
+   ShootOverrideTrigger, ConveyandIntakeUp, ConveyandIntakeDown;  
 
 
 
@@ -72,6 +80,10 @@ Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on t
    */
   public RobotContainer()
   {
+    NamedCommands.registerCommand("ConveyIntake", new IntakeAndConveyUp(intake, Conveyer).until(() -> intake.getMotorOutputVoltage() <=(-150)));
+    NamedCommands.registerCommand("ShootMax", new ShootMax(shooter).until(() -> shooter.getBusVoltage() <= (-150)));
+    NamedCommands.registerCommand("ConveyShoot",new ConveyUp(Conveyer).until(() -> Conveyer.getMotorOutputVoltage() <= (-150)));
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -115,6 +127,8 @@ Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on t
 
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
+        // SmartDashboard.putNumber("Joystick X value", shootLow.getApplied);
+
           //shooter.setDefaultCommand(new Shoot(shooter, () -> js.getRawAxis(1)));
 
         //driveFieldOrientedAnglularVelocity
@@ -141,18 +155,55 @@ Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on t
         Commands.deferredProxy(() -> drivebase.driveToPose(
                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                               ));
-    conveyUpTrigger = new JoystickButton(js, 11).whileTrue(new ConveyDown(Conveyer));
-    conveyDownTrigger = new JoystickButton(js, 7).whileTrue(new ConveyUp(Conveyer));
-    voreTrigger = new JoystickButton(js, 2).whileTrue(new Vore(intake));
-    expelTrigger = new JoystickButton(js, 8).whileTrue(new Expel(intake));
-    ShovelDownTrigger = new JoystickButton(js, 5).whileTrue(new Shoveling(shovel));
-    ShovelingTrigger = new JoystickButton(js, 7).whileTrue(new shovelDown(shovel));
-    ElevateUpTrigger = new JoystickButton(js, 10).whileTrue(new ElevateUp(elevator));
-    ElevateDownTrigger = new JoystickButton(js, 9).whileTrue(new ElevateDown(elevator));
-    shootLow = new JoystickButton(js, 12).whileTrue(new ShootLow(shooter));
-    shootMaxTrigger = new JoystickButton(js, 1).whileTrue(new ShootMax(shooter));
-    ShootOverrideTrigger =  new JoystickButton(js, 3).whileTrue(new Shoot(shooter, 
+     shootMaxTrigger = new JoystickButton(js, 1).whileTrue(new ShootMax(shooter));
+    // voreTrigger = new JoystickButton(js, 2).whileTrue(new Vore(intake));
+     ShootOverrideTrigger =  new JoystickButton(js, 3).whileTrue(new Shoot(shooter, 
      () -> js.getRawAxis(1), () -> js.getRawAxis(3)));
+     ConveyandIntakeUp = new JoystickButton(js, 11).whileTrue(new IntakeAndConveyUp(intake, Conveyer));
+     ConveyandIntakeDown = new JoystickButton(js, 7).whileTrue(new IntakeAndConveyDown(intake, Conveyer));
+     //expelTrigger = new JoystickButton(js, 7).whileTrue(new Expel(intake));
+     conveyDownTrigger = new JoystickButton(js, 8).whileTrue(new ConveyDown(Conveyer));
+     ElevateDownTrigger = new JoystickButton(js, 9).whileTrue(new ElevateDown(elevator));
+     ElevateUpTrigger = new JoystickButton(js, 10).whileTrue(new ElevateUp(elevator));
+     shootLow = new JoystickButton(js, 12).whileTrue(new ShootLow(shooter));
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+   // conveyUpTrigger = new JoystickButton(js, 11).whileTrue(new ConveyUp(Conveyer));
+    //conveyDownTrigger = new JoystickButton(js, 8).whileTrue(new ConveyDown(Conveyer));
+    //voreTrigger = new JoystickButton(js, 2).whileTrue(new Vore(intake));
+    //expelTrigger = new JoystickButton(js, 7).whileTrue(new Expel(intake));
+    //ShovelDownTrigger = new JoystickButton(js, 5).whileTrue(new Shoveling(shovel));
+    //ShovelingTrigger = new JoystickButton(js, 7).whileTrue(new shovelDown(shovel));
+    //ElevateUpTrigger = new JoystickButton(js, 10).whileTrue(new ElevateUp(elevator));
+   // ElevateDownTrigger = new JoystickButton(js, 9).whileTrue(new ElevateDown(elevator));
+    //shootLow = new JoystickButton(js, 12).whileTrue(new ShootLow(shooter));
+    //shootMaxTrigger = new JoystickButton(js, 1).whileTrue(new ShootMax(shooter));
+    //ShootOverrideTrigger =  new JoystickButton(js, 3).whileTrue(new Shoot(shooter, 
+     //() -> js.getRawAxis(1), () -> js.getRawAxis(3)));
+    // ConveyandIntakeUp = new JoystickButton(js, 4).whileTrue(new ConveyUp(Conveyer));
+    // ConveyandIntakeUp = new JoystickButton(js, 4).whileTrue(new Vore(intake));
+   // ConveyandIntakeDown = new JoystickButton(js, 5).whileTrue(new IntakeAndConveyDown(intake, Conveyer));
+     //ConveyandIntakeDown = new JoystickButton(js, 5).whileTrue(new ConveyUp(Conveyer));
+    // ConveyandIntakeUp = new JoystickButton(js, 4).whileTrue(new IntakeAndConveyUp(intake, Conveyer));
+
+
+
+     
+     // new Vore(intake));// new Vore(intake));
+
    
   
 
@@ -165,12 +216,32 @@ Joystick js = new Joystick(1); // 0 is the USB Port to be used as indicated on t
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    // SequentialCommandGroup auto = new SequentialCommandGroup(
+    //  //new Vore(intake).until(() -> intake.getMotorOutputVoltage()<=(-150)) ),
+    //  new IntakeAndConveyUp(intake, Conveyer).until(() -> intake.getMotorOutputVoltage() <=(-150)),
+    //  new ShootMax(shooter).until(() -> shooter.getCanBusVoltage() <= (-150)),
+    //  new ConveyUp(Conveyer).until(() -> Conveyer.getMotorOutputVoltage() <= (-150)));
 
-    return new PathPlannerAuto("New Auto");
+      //new AutoIntake(intake));
 
+   //  new Vore(intake).until(() -> intake.getMotorOutputVoltage()>=(6)));
+   //   new AutoIntake(intake));
+    ;
+      
+    //return auto;
+  
+
+    //return auto;
+    //
+   //new Vore(intake).until(() -> intake.getMotorOutputVoltage()>=(6));
+
+    //new ShootMax(shooter).until(() -> shooter.getaa)
+
+   return new PathPlannerAuto("topBlue");}
+  
     // An example command will be run in autonomous
     //return drivebase.getAutonomousCommand("New Auto");
-  }
+  
 
   public void setDriveMode()
   {
